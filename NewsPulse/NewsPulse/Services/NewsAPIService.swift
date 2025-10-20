@@ -9,8 +9,12 @@ import Foundation
 
 class NewsAPIService {
     
-    func fetchTopHeadlines() async throws -> [Articles] {
-        let urlString = "https://newsapi.org/v2/top-headlines?country=us&apiKey=b09854f55786447aaedfdc71c0d310bd"
+    func fetchTopHeadlines(category: NewsCategory? = nil) async throws -> [Articles] {
+        var urlString = "https://newsapi.org/v2/top-headlines?country=us&apiKey=b09854f55786447aaedfdc71c0d310bd"
+        
+        if let category = category {
+            urlString += "&category=\(category.rawValue)"
+        }
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)

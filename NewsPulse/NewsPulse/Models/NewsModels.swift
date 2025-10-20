@@ -15,7 +15,7 @@ struct NewsResponse: Decodable {
 }
 
 //  MARK: - News article
-struct Articles: Decodable, Identifiable {
+struct Articles: Decodable, Identifiable, Equatable {
     let id: String // Use url as the identifier
     let source: Source
     let author: String?
@@ -28,6 +28,18 @@ struct Articles: Decodable, Identifiable {
     
     private enum CodingKeys: String, CodingKey {
         case source, author, title, description, url, urlToImage, publishedAt, content
+    }
+    
+    init(source: Source, author: String?, title: String, description: String?, url: String, urlToImage: String?, publishedAt: String, content: String?) {
+        self.id = url
+        self.source = source
+        self.author = author
+        self.title = title
+        self.description = description
+        self.url = url
+        self.urlToImage = urlToImage
+        self.publishedAt = publishedAt
+        self.content = content
     }
     
     init(from decoder: Decoder) throws {
@@ -47,7 +59,7 @@ struct Articles: Decodable, Identifiable {
 
 
 // MARK: - Source
-struct Source: Decodable {
+struct Source: Decodable, Equatable {
     let id: String?
     let name: String
 }

@@ -12,6 +12,7 @@ class NewsViewModel: ObservableObject {
     @Published var articles: [Articles] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var selectedCategory: NewsCategory = .general
     
     private var service: NewsAPIService?
     
@@ -30,7 +31,7 @@ class NewsViewModel: ObservableObject {
         }
         
         do {
-            let fetchedArticles = try await service.fetchTopHeadlines()
+            let fetchedArticles = try await service.fetchTopHeadlines(category: selectedCategory)
             
             await MainActor.run {
                 self.articles.removeAll()
@@ -51,6 +52,11 @@ class NewsViewModel: ObservableObject {
         await MainActor.run {
             self.isLoading = false
         }
+    }
+    
+    func selectCategory(_ category: NewsCategory) async {
+        selectedCategory = category
+        await loadNews()
     }
     
 }

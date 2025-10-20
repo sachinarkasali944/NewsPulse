@@ -10,11 +10,26 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = NewsViewModel()
     
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL: \(urlString)")
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
     var body: some View {
         NavigationView {
-            Group {
+            VStack(spacing: 0) {
+                CategoryTabView(viewModel: viewModel)
+                    .padding(.vertical, 8)
+                
                 if viewModel.isLoading {
                     ProgressView("Loading news...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if let error = viewModel.errorMessage {
                     VStack {
                         Text("Error loading news")
@@ -30,26 +45,23 @@ struct ContentView: View {
                         .padding(.top)
                     }
                     .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.articles) { article in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(article.title)
-                                .font(.headline)
-                                .lineLimit(3)
-                            if let description = article.description {
-                                Text(description)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVStack(spacing: 30) {
+                            ForEach(viewModel.articles) { article in
+                                NewsCardView(article: article) {
+                                    openURL(article.url)
+                                }
                             }
                         }
-                        .padding(.vertical, 2)
+                        .padding(.vertical, 20)
+                        .padding(.horizontal, 16)
                     }
-                    .background(Color.white.opacity(0.5))
-
                 }
             }
-            .navigationTitle("Top Headlines")
+            .navigationTitle("NewsPulse")
+            .navigationBarTitleDisplayMode(.large)
             .task {
                 await viewModel.loadNews()
             }
